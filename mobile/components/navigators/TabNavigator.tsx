@@ -23,9 +23,9 @@ export const TabNavigator: React.FC = () => {
       screenOptions={rootOptions}
     >
       <Tab.Screen
-        name={TabScreenName.TaskList}
-        component={TaskListScreen}
-        options={tabListOptions}
+        name={TabScreenName.TaskCreation}
+        component={TaskCreationScreen}
+        options={taskCreationOptions}
       />
       <Tab.Screen
         name={TabScreenName.TaskFocus}
@@ -33,9 +33,9 @@ export const TabNavigator: React.FC = () => {
         options={taskFocusOptions}
       />
       <Tab.Screen
-        name={TabScreenName.TaskCreation}
-        component={TaskCreationScreen}
-        options={taskCreationOptions}
+        name={TabScreenName.TaskList}
+        component={TaskListScreen}
+        options={tabListOptions}
       />
     </Tab.Navigator>
   );
@@ -63,7 +63,7 @@ const taskFocusOptions: BottomTabNavigationOptions = {
 };
 const taskCreationOptions: BottomTabNavigationOptions = {
   tabBarIcon: ({ focused }) => (
-    <Ionicons name="add" size={24} color={focused ? colors.fg1 : colors.fg3} />
+    <Ionicons name="add" size={28} color={focused ? colors.fg1 : colors.fg3} />
   ),
   tabBarLabel: () => null,
 };

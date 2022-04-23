@@ -1,13 +1,32 @@
-import { StyleSheet } from "react-native";
+import { StyleProp, StyleSheet, ViewStyle } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { spacing } from "../../config/spacing";
 
-export const Screen: React.FC = ({ children }) => {
-  return <SafeAreaView style={style.root}>{children}</SafeAreaView>;
+type ScreenProps = {
+  style?: StyleProp<ViewStyle>;
+  hasHorizontalPadding?: boolean;
 };
 
-const style = StyleSheet.create({
+export const Screen: React.FC<ScreenProps> = ({
+  children,
+  style,
+  hasHorizontalPadding,
+}) => {
+  return (
+    <SafeAreaView
+      style={[
+        styles.root,
+        { paddingHorizontal: hasHorizontalPadding ? spacing.paddingM : 0 },
+        style,
+      ]}
+    >
+      {children}
+    </SafeAreaView>
+  );
+};
+
+const styles = StyleSheet.create({
   root: {
-    paddingHorizontal: 8,
     backgroundColor: "#fff",
     flex: 1,
   },
