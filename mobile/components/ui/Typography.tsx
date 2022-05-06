@@ -1,5 +1,5 @@
 import { Text, TextProps } from "react-native";
-import { colors } from "../../config/colors";
+import { useTheme } from "../contexts/ThemeContext";
 
 type FontSize = "S" | "M" | "L";
 
@@ -11,9 +11,11 @@ type TypographyProps = TextProps & {
 export const Typography: React.FC<TypographyProps> = ({
   size,
   children,
-  color = colors.fg1,
+  color,
   ...textProps
 }) => {
+  const { colors } = useTheme();
+  color = color || colors.fg1;
   return (
     <Text
       {...textProps}

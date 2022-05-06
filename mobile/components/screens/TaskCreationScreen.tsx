@@ -1,11 +1,13 @@
 import { Slider } from "@miblanchard/react-native-slider";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { KeyboardAvoidingView, Platform, StyleSheet, View } from "react-native";
-import { colors } from "../../config/colors";
+import SwipeUpDown from "react-native-swipe-up-down";
+import parser from "any-date-parser";
+
 import { Screen } from "../ui/Screen";
 import { TextField } from "../ui/TextField";
 import { Typography } from "../ui/Typography";
-import parser from "any-date-parser";
+import { useTheme } from "../contexts/ThemeContext";
 
 export function TaskCreationScreen() {
   const [importance, setImportance] = useState<number>(INITIAL_IMPORTANCE);
@@ -21,8 +23,10 @@ export function TaskCreationScreen() {
   const handleTimeCommitmentInputComplete = useCallback((minutes) => {
     setTimeCommitment(minutes);
   }, []);
+  const { bottomTabColors } = useTheme();
+
   return (
-    <Screen hasHorizontalPadding>
+    <Screen hasHorizontalPadding bottomTabTheme={taskDue ? "dark" : "light"}>
       <KeyboardAvoidingView
         style={styles.inputsContainer}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -42,6 +46,26 @@ export function TaskCreationScreen() {
           />
         </View>
       </KeyboardAvoidingView>
+      <SwipeUpDown
+        itemFull={
+          <View style={{ flex: 1 }}>
+            <Typography size="M" color={bottomTabColors.fg1}>
+              BOOJIE
+            </Typography>
+          </View>
+        }
+        itemMini={
+          <View style={{ flex: 1 }}>
+            <Typography size="M" color={bottomTabColors.fg1}>
+              BOOJIE
+            </Typography>
+          </View>
+        }
+        style={{ backgroundColor: bottomTabColors.bg1 }}
+        animation="spring"
+        swipeHeight={150}
+        disableSwipeIcon
+      />
     </Screen>
   );
 }
@@ -104,6 +128,7 @@ const ImportanceInput: React.FC<ImportanceInputProps> = ({
     [onInputComplete]
   );
   const importanceDescription = getImportanceDescription(importance);
+  const { colors } = useTheme();
   return (
     <View>
       <View style={styles.importanceSliderHeader}>
@@ -146,6 +171,8 @@ const TimeCommitmentInput: React.FC<TimtCommitmentInputProps> = ({
   );
   const minutes = fracToMinutesTimeCommitment(sliderValue);
   const description = minutesToDescription(minutes);
+  const { colors } = useTheme();
+
   return (
     <View>
       <View style={styles.importanceSliderHeader}>

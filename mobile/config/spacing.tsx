@@ -1,3 +1,3 @@
 export const spacing = {
-  paddingM: 8,
+  paddingM: 12,
 };

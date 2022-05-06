@@ -5,7 +5,7 @@ import {
   TextInputProps,
   View,
 } from "react-native";
-import { colors } from "../../config/colors";
+import { useTheme } from "../contexts/ThemeContext";
 import { getFontSize, Typography } from "./Typography";
 
 type TextFieldProps = TextInputProps & {
@@ -15,9 +15,11 @@ type TextFieldProps = TextInputProps & {
 
 export const TextField: React.FC<TextFieldProps> = ({
   label,
-  labelColor = colors.fg1,
+  labelColor,
   ...textInputProps
 }) => {
+  const { colors } = useTheme();
+  labelColor = labelColor || colors.fg1;
   return (
     <View>
       {label && (
