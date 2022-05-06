@@ -11,6 +11,7 @@
     "@miblanchard/react-native-slider": "^2.1.0",
     "@react-navigation/bottom-tabs": "^6.3.1",
     "@react-navigation/native": "^6.0.10",
+    "any-date-parser": "^1.5.2",
     "expo": "~44.0.0",
     "expo-status-bar": "~1.2.0",
     "react": "17.0.1",

@@ -5,6 +5,7 @@ import { colors } from "../../config/colors";
 import { Screen } from "../ui/Screen";
 import { TextField } from "../ui/TextField";
 import { Typography } from "../ui/Typography";
+import parser from "any-date-parser";
 
 export function TaskCreationScreen() {
   const [importance, setImportance] = useState<number>(INITIAL_IMPORTANCE);
@@ -25,6 +26,9 @@ export function TaskCreationScreen() {
       <View style={{ marginVertical: 20 }}>
         <TaskInput onInputComplete={handleTaskInputComplete} />
       </View>
+      <Typography size="M">
+        {taskDue ? taskDue.toString() : "No due date given"}
+      </Typography>
       <View style={{ marginVertical: 20 }}>
         <ImportanceInput
           initialValue={importance}
@@ -51,12 +55,10 @@ type TaskInputProps = {
 
 const TaskInput: React.FC<TaskInputProps> = ({ onInputComplete }) => {
   const [taskStr, setTaskStr] = useState("");
-  const [isBlurred, setIsBlurred] = useState(false);
   const taskStrRef = useRef(taskStr);
   taskStrRef.current = taskStr;
   const handleBlur = useCallback(() => {
-    const taskStrData = getTaskStrData(taskStrRef.current);
-    setIsBlurred(true);
+    const taskStrData = taskStrToTaskStrData(taskStrRef.current);
     onInputComplete?.(taskStrData);
   }, [onInputComplete]);
   return (
@@ -65,12 +67,9 @@ const TaskInput: React.FC<TaskInputProps> = ({ onInputComplete }) => {
         autoFocus
         value={taskStr}
         onChangeText={setTaskStr}
-        placeholder="E.g Call dad tomorrow by tomorrow 5pm"
+        placeholder="E.g Call dad by tomorrow 5pm"
         onBlur={handleBlur}
       />
-      <Typography size="S" style={{ marginTop: 6, opacity: isBlurred ? 1 : 0 }}>
-        No deadline given
-      </Typography>
     </View>
   );
 };
@@ -242,7 +241,39 @@ function getImportanceDescription(importance: number) {
   ];
 }
 
-function taskStrToTaskStrData(taskStr: string): TaskStrData {
+const taskDueDateSeparators = ["by", "due", "before", "at"];
+
+function taskStrToTaskStrData(taskInput: string): TaskStrData {
   // TODO: extract due date from task description.
-  return { task: taskStr, due: null };
+
+  const separator = taskDueDateSeparators.find((separator) =>
+    taskInput.includes(` ${separator} `)
+  );
+
+  if (!separator) {
+    return { task: taskInput };
+  }
+
+  const taskEndIndex = taskInput.indexOf(` ${separator} `);
+  const dateStartIndex = taskEndIndex + separator.length + 2;
+  const taskStr = taskInput.substring(0, taskEndIndex);
+  const dateStr = taskInput.substring(dateStartIndex);
+
+  const date = parser.fromString(dateStr);
+  if (!date) {
+    return { task: taskInput };
+  }
+
+  const now = new Date();
+  if (date < now) {
+    date.setFullYear(now.getFullYear());
+    if (date < now) {
+      date.setFullYear(now.getFullYear() + 1);
+    }
+  }
+
+  return {
+    task: taskStr,
+    due: date,
+  };
 }
