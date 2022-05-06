@@ -1,6 +1,6 @@
 import { Slider } from "@miblanchard/react-native-slider";
-import { useCallback, useRef, useState } from "react";
-import { StyleSheet, View } from "react-native";
+import { useCallback, useMemo, useRef, useState } from "react";
+import { KeyboardAvoidingView, Platform, StyleSheet, View } from "react-native";
 import { colors } from "../../config/colors";
 import { Screen } from "../ui/Screen";
 import { TextField } from "../ui/TextField";
@@ -23,23 +23,25 @@ export function TaskCreationScreen() {
   }, []);
   return (
     <Screen hasHorizontalPadding>
-      <View style={{ marginVertical: 20 }}>
-        <TaskInput onInputComplete={handleTaskInputComplete} />
-      </View>
-      <Typography size="M">
-        {taskDue ? taskDue.toString() : "No due date given"}
-      </Typography>
-      <View style={{ marginVertical: 20 }}>
-        <ImportanceInput
-          initialValue={importance}
-          onInputComplete={setImportance}
-        />
-      </View>
-      <View style={{ marginVertical: 20 }}>
-        <TimeCommitmentInput
-          onInputComplete={handleTimeCommitmentInputComplete}
-        />
-      </View>
+      <KeyboardAvoidingView
+        style={styles.inputsContainer}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+      >
+        <View style={{ marginVertical: 20 }}>
+          <TaskInput onInputComplete={handleTaskInputComplete} />
+        </View>
+        <View style={{ marginVertical: 20 }}>
+          <ImportanceInput
+            initialValue={importance}
+            onInputComplete={setImportance}
+          />
+        </View>
+        <View style={{ marginVertical: 20 }}>
+          <TimeCommitmentInput
+            onInputComplete={handleTimeCommitmentInputComplete}
+          />
+        </View>
+      </KeyboardAvoidingView>
     </Screen>
   );
 }
@@ -55,12 +57,12 @@ type TaskInputProps = {
 
 const TaskInput: React.FC<TaskInputProps> = ({ onInputComplete }) => {
   const [taskStr, setTaskStr] = useState("");
-  const taskStrRef = useRef(taskStr);
-  taskStrRef.current = taskStr;
+  const { task, due } = useMemo(() => taskInputToTaskData(taskStr), [taskStr]);
+
   const handleBlur = useCallback(() => {
-    const taskStrData = taskStrToTaskStrData(taskStrRef.current);
-    onInputComplete?.(taskStrData);
-  }, [onInputComplete]);
+    onInputComplete?.({ task, due });
+  }, [onInputComplete, task, due]);
+
   return (
     <View>
       <TextField
@@ -167,14 +169,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
   },
+  inputsContainer: {
+    flex: 1,
+    justifyContent: "center",
+  },
 });
-
-function getTaskStrData(taskStr: string): TaskStrData {
-  return {
-    task: taskStr,
-    due: new Date(),
-  };
-}
 
 const timeCommitmentOptions = [
   5,
@@ -243,9 +242,7 @@ function getImportanceDescription(importance: number) {
 
 const taskDueDateSeparators = ["by", "due", "before", "at"];
 
-function taskStrToTaskStrData(taskInput: string): TaskStrData {
-  // TODO: extract due date from task description.
-
+function taskInputToTaskData(taskInput: string): TaskStrData {
   const separator = taskDueDateSeparators.find((separator) =>
     taskInput.includes(` ${separator} `)
   );
